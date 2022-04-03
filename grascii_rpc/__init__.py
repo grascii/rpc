@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 
-from grascii_server.api import grascii_api
+from grascii_rpc.api import create_api
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -20,6 +20,7 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    grascii_api.init_app(app)
+    api = create_api()
+    api.init_app(app)
 
     return app
