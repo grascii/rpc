@@ -6,6 +6,7 @@ else:
     from typing_extensions import Literal
 
 from flask_jsonrpc import JSONRPC
+from grascii.outline import Outline
 from grascii.parser import GrasciiParser, Interpretation
 from grascii.searchers import GrasciiSearcher
 from lark import UnexpectedInput
@@ -25,13 +26,17 @@ def create_api(service_url: str="/api",
 
     if "grascii.interpret" in enabled_apis:
         @api.method("grascii.interpret")
-        def interpret(grascii: str) -> Optional[Interpretation]:
+        def interpret(grascii: str, infer_directions: bool=False) -> Optional[Interpretation]:
             try:
-                interpretations = parser.interpret(grascii.upper())
+                interpretations = parser.interpret(grascii.upper(), preserve_boundaries=infer_directions)
             except UnexpectedInput:
                 return
 
-            return interpretations[0]
+            interpretation = interpretations[0]
+            if infer_directions:
+                outline = Outline(interpretation)
+                return outline.to_interpretation()
+            return interpretation
 
     if "grascii.search" in enabled_apis:
         @api.method("grascii.search")
